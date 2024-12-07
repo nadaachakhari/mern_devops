@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: backend
+    image: nadac/back-end-employee:latest
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    #volumes:
+    #  - ./backend:/app
+    environment:
+      MONGO_URI: mongodb://mongodb:mongodb@mongo:27017/employee?authSource=admin
+    depends_on:
+      - mongo
+    networks:
+      - back-network
+      - front-network
+
+  frontend:
+    container_name: frontend
+    image: nadac/front-end-employee:latest
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    #volumes:
+    #  - ./frontend:/app # Not good practice :) this will bind the folder app to your local frontend folder
+                        # thats what create the conflict with the node_modules
+    depends_on:
+      - backend
+    networks:
+      - front-network
+
+  mongo:
+    image: mongo:4.4
+    restart: always
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb
+      MONGO_INITDB_ROOT_PASSWORD: mongodb
+      MONGO_INITDB_DATABASE: employee
+    networks:
+      - back-network
+    ports:
+      - "27017:27017"
+
+networks:
+  front-network:
+  back-network:
+
+volumes:
+  mongodb_data:
+
+#docker compose before the modification, was build image docker in local with dockerfiles
+#now docker compose build image from docker hub

@@ -1,0 +1,49 @@
+- name: Install Java 17 & Jenkins
+  hosts: isamm
+  become: yes
+
+  tasks:
+    - name: Install ntpdate
+      apt:
+        name: ntpdate
+        state: present
+
+    - name: Synchronize system clock
+      command: ntpdate -u pool.ntp.org
+
+    - name: Update APT package index
+      apt:
+        update_cache: yes
+
+    - name: Install Java 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Download Jenkins repository key
+      ansible.builtin.command:
+        cmd: wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+
+    - name: Add Jenkins repository key
+      ansible.builtin.command:
+        cmd: apt-key add /usr/share/keyrings/jenkins-keyring.asc
+
+    - name: Add Jenkins repository
+      apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] http://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Update APT package index again
+      apt:
+        update_cache: yes
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Start and enable Jenkins service
+      systemd:
+        name: jenkins
+        state: started
+        enabled: yes

@@ -1,0 +1,52 @@
+# - name: Déployer les applications Docker
+#   # hosts: localhost : problem in this line but why ??
+#   hosts: vagrant
+#   #vagrant status
+#   #connection: local
+#   #sudo
+#   become: yes
+#   tasks: 
+#   # install docker et docker-compose
+#     - name: Installation de docker
+#       apt:
+#         name: docker.io
+#         state: present
+#     - name: Installation de docker-compose
+#       apt:
+#         name: docker-compose
+#         state: present
+#   #creer un repertoire pour docker-compose
+#     - name: Création du répertoire pour docker-compose
+#       file:
+#         path: /home/vagrant/mern
+#         state: directory
+#         mode: '0755'
+#   #copier le fichier docker-compose.yml
+#     - name: Copie du fichier docker-compose.yml
+#       copy:
+#         src: ./docker-compose.yml
+#         dest: /home/vagrant/mern/docker-compose.yml
+#         #pourquoi ça marche pas ici ??
+#   #verifications des images
+#     # - name: Vérification des images docker hub
+#     #   command: docker pull nadac/backend-employee:latest
+#     # - name: Vérification des images docker hub
+#     #   command: docker pull nadac/front-end-employee:latest
+#   #lancer les services avec docker-compose
+#     - name: Lancement des services avec docker-compose
+#       command: docker-compose up -d
+#       args:
+#         chdir: /home/vagrant/mern
+
+- name: Deploy docker-compose app
+  hosts: isamm
+  become: yes
+  tasks:
+    - name: copy docker-compose file
+      copy:
+        src: ./docker-compose.yml
+        dest: /home/vagrant/docker-compose.yml 
+    - name: run docker-compose
+      command: docker compose up -d
+      args:
+        chdir: /home/vagrant  
